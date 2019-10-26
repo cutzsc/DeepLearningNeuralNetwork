@@ -8,6 +8,8 @@ namespace DeepLearningNeuralNetwork
 {
     public class NeuralNetwork
     {
-
+		Layer l = new Layer()
+			.AddNeuron()
+			.AddNeuron();
     }
 }

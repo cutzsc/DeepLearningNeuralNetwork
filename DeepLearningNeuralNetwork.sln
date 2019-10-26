@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.29411.108
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeepLearningNeuralNetwork", "DeepLearningNeuralNetwork\DeepLearningNeuralNetwork.csproj", "{6035FFCC-A4F3-44D6-BB1C-8C5D7E3AB451}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Controller", "Controller\Controller.csproj", "{0904BADB-9B54-4D90-918C-DA03FC24ECE4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{6035FFCC-A4F3-44D6-BB1C-8C5D7E3AB451}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6035FFCC-A4F3-44D6-BB1C-8C5D7E3AB451}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6035FFCC-A4F3-44D6-BB1C-8C5D7E3AB451}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0904BADB-9B54-4D90-918C-DA03FC24ECE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0904BADB-9B54-4D90-918C-DA03FC24ECE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0904BADB-9B54-4D90-918C-DA03FC24ECE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0904BADB-9B54-4D90-918C-DA03FC24ECE4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
