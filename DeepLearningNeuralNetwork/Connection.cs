@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DeepLearningNeuralNetwork
+﻿namespace DeepLearningNeuralNetwork
 {
-	struct Connection
+	public class Connection
 	{
 		public double weight;
-		public Neuron pre;
-		public Neuron next;
+		public double deltaWeight;
+
+		public Connection(double weight)
+		{
+			this.weight = weight;
+		}
 	}
 }
