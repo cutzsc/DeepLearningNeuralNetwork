@@ -1,6 +1,7 @@
 ﻿using DeepLearningNeuralNetwork.Layers;
 using DeepLearningNeuralNetwork.Neurons;
 using System;
+using System.Threading.Tasks;
 
 namespace DeepLearningNeuralNetwork
 {
@@ -40,41 +41,103 @@ namespace DeepLearningNeuralNetwork
 
 		public void FeedForward(double[] inputs)
 		{
-			// Check length == length
+			int len = layers[0].HasBias ?
+				layers[0].neurons.Length - 1 :
+				layers[0].neurons.Length;
 
-			Neuron[] inputLayer = layers[0].neurons;
-			for (int i = 0; i < inputLayer.Length; i++)
+			if (inputs.Length != len)
+				throw new NeuralNetworkException("", inputs.Length, len);
+
+			Neuron[] inputNeurons = layers[0].neurons;
+			for (int i = 0; i < len; i++)
 			{
-				InputNeuron n = inputLayer[i] as InputNeuron;
-				if (n != null)
-					n.SetInput(inputs[i]);
+				InputNeuron n = inputNeurons[i] as InputNeuron;
+				n.SetInput(inputs[i]);
 			}
 
 			for (int i = 1; i < layers.Length; i++)
+			{
+				foreach (Neuron neuron in layers[i].neurons)
+				{
+					neuron.CalculateOutput(layers[i - 1].neurons);
+				}
+			}
+		}
+
+		public void ParallelFeedForward(double[] inputs)
+		{
+			int len = layers[0].HasBias ?
+				layers[0].neurons.Length - 1 :
+				layers[0].neurons.Length;
+
+			if (inputs.Length != len)
+				throw new NeuralNetworkException("", inputs.Length, len);
+
+			Neuron[] inputNeurons = layers[0].neurons;
+			for (int i = 0; i < len; i++)
+			{
+				InputNeuron n = inputNeurons[i] as InputNeuron;
+				Task.Run(() => n.SetInput(inputs[i]));
+			}
+
+			Task.WaitAll();
+
+			for (int i = 1; i < layers.Length; i++)
+			{
 				foreach (Neuron n in layers[i].neurons)
 				{
-					if (n is Bias)
-						continue;
-					n.CalculateOutput(layers[i - 1].neurons);
+					Task.Run(() => n.CalculateOutput(layers[i - 1].neurons));
 				}
-
+				Task.WaitAll();
+			}
 		}
 
 		public void BackPropagation(double[] targets, double eta, double alpha)
 		{
-			// Check length == length
+			if (targets.Length != layers[layers.Length - 1].neurons.Length)
+				throw new NeuralNetworkException("", targets.Length, layers[layers.Length - 1].neurons.Length);
 
 			int i = 0;
-
 			foreach (OutputNeuron neuron in layers[layers.Length - 1].neurons)
+			{
 				neuron.CalculateGradient(targets[i++]);
+			}
 
 			for (i = layers.Length - 2; i >= 0; i--)
-				foreach (Neuron n in layers[i].neurons)
+			{
+				foreach (Neuron neuron in layers[i].neurons)
 				{
-					n.CalculateGradient();
-					n.CalculateWeights(eta, alpha);
+					neuron.CalculateGradient();
+					neuron.CalculateWeights(eta, alpha);
 				}
+			}
+		}
+
+		public void ParallelBackPropagation(double[] targets, double eta, double alpha)
+		{
+			if (targets.Length != layers[layers.Length - 1].neurons.Length)
+				throw new NeuralNetworkException("", targets.Length, layers[layers.Length - 1].neurons.Length);
+
+			int i = 0;
+			foreach (OutputNeuron neuron in layers[layers.Length - 1].neurons)
+			{
+				Task.Run(() => neuron.CalculateGradient(targets[i++]));
+			}
+
+			Task.WaitAll();
+
+			for (i = layers.Length - 2; i >= 0; i--)
+			{
+				foreach (Neuron neuron in layers[i].neurons)
+				{
+					Task.Run(() =>
+					{
+						neuron.CalculateGradient();
+						neuron.CalculateWeights(eta, alpha);
+					});
+				}
+				Task.WaitAll();
+			}
 		}
 	}
 }

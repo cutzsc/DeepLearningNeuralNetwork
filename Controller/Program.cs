@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using DeepLearningNeuralNetwork;
 
 
@@ -114,7 +115,6 @@ namespace Launcher
 				double[][] d = TrainingData();
 				p.FeedForward(d[0]);
 				p.BackPropagation(d[1], 0.45, 0.85);
-
 				double[] res = p.Result;
 
 				if ((double)i / times > 0.97)

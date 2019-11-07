@@ -10,5 +10,10 @@ namespace DeepLearningNeuralNetwork.Layers
 			this.info = info;
 		}
 		public abstract Neuron[] CreateNeurons();
+
+		public bool HasBias()
+		{
+			return info.hasBias;
+		}
 	}
 }
