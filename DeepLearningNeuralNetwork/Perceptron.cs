@@ -33,10 +33,43 @@ namespace DeepLearningNeuralNetwork
 
 			layers[layers.Length - 1] = new Layer(new OutputLayer(info.layers[info.layers.Count - 1]));
 
-			// Create connections
+			// Set connections
 			for (int i = 0; i < layers.Length - 1; i++)
 				for (int j = 0; j < layers[i].neurons.Length; j++)
 					layers[i].neurons[j].SetConnections(layers[i + 1].neurons, info.minWeight, info.maxWeight);
+		}
+
+		public double[] Predict(double[] inputs)
+		{
+			int inputLen = layers[0].HasBias ?
+				layers[0].neurons.Length - 1 :
+				layers[0].neurons.Length;
+
+			if (inputs.Length != inputLen)
+				throw new NeuralNetworkException("", inputs.Length, inputLen);
+
+			Neuron[] inputNeurons = layers[0].neurons;
+			for (int i = 0; i < inputLen; i++)
+			{
+				((InputNeuron)inputNeurons[i]).SetInput(inputs[i]);
+			}
+
+			for (int i = 1, k = 0; i < layers.Length - 1; i++)
+			{
+				foreach (Neuron neuron in layers[i].neurons)
+				{
+					neuron.CalculateOutput(layers[i - 1].neurons);
+				}
+			}
+
+			Neuron[] outputNeurons = layers[layers.Length - 1].neurons;
+			double[] result = new double[outputNeurons.Length];
+			for (int i = 0; i < outputNeurons.Length; i++)
+			{
+				outputNeurons[i].CalculateOutput(layers[layers.Length - 2].neurons);
+				result[i] = outputNeurons[i].Output;
+			}
+			return result;
 		}
 
 		public void FeedForward(double[] inputs)
@@ -51,8 +84,7 @@ namespace DeepLearningNeuralNetwork
 			Neuron[] inputNeurons = layers[0].neurons;
 			for (int i = 0; i < len; i++)
 			{
-				InputNeuron n = inputNeurons[i] as InputNeuron;
-				n.SetInput(inputs[i]);
+				((InputNeuron)inputNeurons[i]).SetInput(inputs[i]);
 			}
 
 			for (int i = 1; i < layers.Length; i++)
@@ -76,8 +108,7 @@ namespace DeepLearningNeuralNetwork
 			Neuron[] inputNeurons = layers[0].neurons;
 			for (int i = 0; i < len; i++)
 			{
-				InputNeuron n = inputNeurons[i] as InputNeuron;
-				Task.Run(() => n.SetInput(inputs[i]));
+				Task.Run(() => ((InputNeuron)inputNeurons[i]).SetInput(inputs[i]));
 			}
 
 			Task.WaitAll();

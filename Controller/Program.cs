@@ -113,7 +113,7 @@ namespace Launcher
 			for (int i = 0; i < times; i++)
 			{
 				double[][] d = TrainingData();
-				p.FeedForward(d[0]);
+				p.Predict(d[0]);
 				p.BackPropagation(d[1], 0.45, 0.85);
 				double[] res = p.Result;
 
