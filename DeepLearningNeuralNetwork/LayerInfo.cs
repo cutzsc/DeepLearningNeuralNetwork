@@ -6,28 +6,40 @@ namespace DeepLearningNeuralNetwork
 	{
 		public List<NeuronInfo> neurons;
 		public bool hasBias;
+		public double biasValue;
 
-		public LayerInfo(bool hasBias, params NeuronInfo[] neurons)
+		public static LayerInfo CreateLayerWithBias { get { return new LayerInfo(true, 1); } }
+
+		public static LayerInfo CreateDefaultLayer { get { return new LayerInfo(false, 0); } }
+
+		public LayerInfo(bool hasBias, double biasValue = 0, params NeuronInfo[] neurons)
 		{
 			this.hasBias = hasBias;
+			this.biasValue = biasValue;
 			this.neurons = new List<NeuronInfo>();
 			foreach (NeuronInfo neuron in neurons)
-			{
 				this.neurons.Add(neuron);
-			}
 		}
 
-		public void AddNeuron(NeuronInfo neuron, int pos)
+		public LayerInfo AddNeuron(NeuronInfo neuron)
+		{
+			neurons.Add(neuron);
+			return this;
+		}
+
+		public LayerInfo AddNeuron(NeuronInfo neuron, int pos)
 		{
 			neurons.Add(neuron);
 			if (pos >= 0 && pos < neurons.Count - 2)
 				MoveNeuron(pos, neurons.Count - 1);
+
+			return this;
 		}
 
-		public void MoveNeuron(int from, int to)
+		public LayerInfo MoveNeuron(int from, int to)
 		{
 			if (from == to)
-				return;
+				return this;
 
 			if (to < 0)
 				to = 0;
@@ -42,6 +54,8 @@ namespace DeepLearningNeuralNetwork
 			NeuronInfo temp = neurons[to];
 			neurons[to] = neurons[from];
 			neurons[from] = temp;
+
+			return this;
 		}
 	}
 }

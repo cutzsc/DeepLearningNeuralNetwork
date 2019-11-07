@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace DeepLearningNeuralNetwork
+namespace DeepLearningNeuralNetwork.Neurons
 {
 	public class Neuron
 	{
@@ -13,11 +13,7 @@ namespace DeepLearningNeuralNetwork
 		public double Output { get; protected set; }
 
 		public Neuron(Func<double, double> activation, Func<double, double> cost)
-			: this(0, activation, cost) { }
-
-		public Neuron(double weight, Func<double, double> activation, Func<double, double> cost)
 		{
-			Output = weight;
 			this.activation = activation;
 			this.cost = cost;
 		}

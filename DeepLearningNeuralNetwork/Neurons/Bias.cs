@@ -4,16 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DeepLearningNeuralNetwork
+namespace DeepLearningNeuralNetwork.Neurons
 {
-	public class InputNeuron : Neuron
+	public class Bias : Neuron
 	{
-		public InputNeuron()
-			: base(null, null) { }
-
-		public void SetInput(double input)
+		public Bias(double value)
+			: base(null, null)
 		{
-			Output = input;
+			Output = value;
 		}
 
 		public override void CalculateOutput(Neuron[] neurons) { }

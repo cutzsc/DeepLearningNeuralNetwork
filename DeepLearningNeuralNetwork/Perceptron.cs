@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using DeepLearningNeuralNetwork.Layers;
+using DeepLearningNeuralNetwork.Neurons;
+using System;
 
 namespace DeepLearningNeuralNetwork
 {
-    public class Perceptron
+	public class Perceptron
     {
 		Layer[] layers;
 
@@ -21,21 +20,22 @@ namespace DeepLearningNeuralNetwork
 			}
 		}
 
-		public Perceptron(int[] p, double biasWeight,
-			Func<double, double> activation, Func<double, double> cost,
-			double minWeight, double maxWeight)
+		public Perceptron(PerceptronInfo info)
 		{
 			// Create perceptron
-			layers = new Layer[p.Length];
-			layers[0] = Layer.CreateInputLayer(p[0], 1);
-			for (int layer = 1; layer < p.Length - 1; layer++)
-				layers[layer] = Layer.CreateHiddenLayer(p[layer], biasWeight, activation, cost);
-			layers[p.Length - 1] = Layer.CreateOutputLayer(p[p.Length - 1], activation, cost);
+			layers = new Layer[info.layers.Count];
+
+			layers[0] = new Layer(new InputLayer(info.layers[0]));
+
+			for (int i = 1; i < layers.Length - 1; i++)
+				layers[i] = new Layer(new HiddenLayer(info.layers[i]));
+
+			layers[layers.Length - 1] = new Layer(new OutputLayer(info.layers[info.layers.Count - 1]));
 
 			// Create connections
 			for (int i = 0; i < layers.Length - 1; i++)
 				for (int j = 0; j < layers[i].neurons.Length; j++)
-					layers[i].neurons[j].SetConnections(layers[i + 1].neurons, minWeight, maxWeight);
+					layers[i].neurons[j].SetConnections(layers[i + 1].neurons, info.minWeight, info.maxWeight);
 		}
 
 		public void FeedForward(double[] inputs)

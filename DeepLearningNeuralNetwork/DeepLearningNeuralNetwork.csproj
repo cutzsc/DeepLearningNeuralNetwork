@@ -41,16 +41,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Bias.cs" />
+    <Compile Include="Neurons\Bias.cs" />
     <Compile Include="Connection.cs" />
     <Compile Include="Functions.cs" />
-    <Compile Include="InputNeuron.cs" />
-    <Compile Include="Layer.cs" />
-    <Compile Include="OutputNeuron.cs" />
+    <Compile Include="Neurons\InputNeuron.cs" />
+    <Compile Include="LayerInfo.cs" />
+    <Compile Include="Layers\HiddenLayer.cs" />
+    <Compile Include="Layers\InputLayer.cs" />
+    <Compile Include="Layers\LayerFactory.cs" />
+    <Compile Include="Layers\OutputLayer.cs" />
+    <Compile Include="Layers\Layer.cs" />
+    <Compile Include="NeuronInfo.cs" />
+    <Compile Include="Neurons\OutputNeuron.cs" />
     <Compile Include="Perceptron.cs" />
     <Compile Include="NeuralNetworkException.cs" />
-    <Compile Include="Neuron.cs" />
+    <Compile Include="Neurons\Neuron.cs" />
+    <Compile Include="PerceptronInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

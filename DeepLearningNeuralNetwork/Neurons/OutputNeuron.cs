@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DeepLearningNeuralNetwork
+namespace DeepLearningNeuralNetwork.Neurons
 {
 	public class OutputNeuron : Neuron
 	{
