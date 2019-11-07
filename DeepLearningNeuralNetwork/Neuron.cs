@@ -5,60 +5,53 @@ namespace DeepLearningNeuralNetwork
 {
 	public class Neuron
 	{
-		Dictionary<Neuron, Connection> connections;
+		protected double gradient;
+		protected Dictionary<Neuron, Connection> connections;
+		protected Func<double, double> activation;
+		protected Func<double, double> cost;
 
-		double eta = 0.35;
-		double alpha = 0.95;
-		double gradient;
-		
-		public double Output { get; private set; }
+		public double Output { get; protected set; }
 
-		public Neuron(double weight = 0)
+		public Neuron(Func<double, double> activation, Func<double, double> cost)
+			: this(0, activation, cost) { }
+
+		public Neuron(double weight, Func<double, double> activation, Func<double, double> cost)
 		{
 			Output = weight;
+			this.activation = activation;
+			this.cost = cost;
 		}
 
-		public void SetConnections(List<Neuron> neurons)
+		public virtual void SetConnections(Neuron[] neurons, double minWeight, double maxWeight)
 		{
-			connections = new Dictionary<Neuron, Connection>(neurons.Count);
-			foreach (Neuron n in neurons)
+			connections = new Dictionary<Neuron, Connection>(neurons.Length);
+			for (int i = 0; i < neurons.Length; i++)
 			{
-				double m = 0.15;
-				connections.Add(n, new Connection(Functions.Rand.NextDouble() * (m - -m) - m));
+				connections.Add(neurons[i], new Connection(Functions.NextDouble(minWeight, maxWeight)));
 			}
 		}
 
-		public void SetOutput(double value)
-		{
-			Output = value;
-		}
-
-		public void CalculateOutput(List<Neuron> neurons)
+		public virtual void CalculateOutput(Neuron[] neurons)
 		{
 			double sum = 0;
-			foreach (Neuron n in neurons)
+			for (int i = 0; i < neurons.Length; i++)
 			{
-				sum += n.Output * n.connections[this].weight;
+				sum += neurons[i].Output * neurons[i].connections[this].weight;
 			}
-			Output = Functions.Sigmoid(sum);
+			Output = activation(sum);
 		}
 
-		public void CalculateGradient(double targetOutput)
-		{
-			gradient = Functions.SigmoidDerivative(Output) * (targetOutput - Output);
-		}
-
-		public void CalculateGradient()
+		public virtual void CalculateGradient()
 		{
 			double sum = 0;
 			foreach (Neuron n in connections.Keys)
 			{
 				sum += n.gradient * connections[n].weight;
 			}
-			gradient = Functions.SigmoidDerivative(Output) * sum;
+			gradient = cost(Output) * sum;
 		}
 
-		public void CalculateConnections()
+		public virtual void CalculateWeights(double eta, double alpha)
 		{
 			foreach (Neuron n in connections.Keys)
 			{
@@ -67,11 +60,6 @@ namespace DeepLearningNeuralNetwork
 					alpha * c.deltaWeight;
 				c.weight += c.deltaWeight;
 			}
-		}
-
-		public double GetConnectionWeight(Neuron n)
-		{
-			return connections[n].weight;
 		}
 	}
 }

@@ -11,6 +11,11 @@ namespace DeepLearningNeuralNetwork
 			Rand = new Random();
 		}
 
+		public static double NextDouble(double min, double max)
+		{
+			return Rand.NextDouble() * (max - min) + min;
+		}
+
 		public static double Sigmoid(double x)
 		{
 			return 1 / (1 + Math.Exp(-x));

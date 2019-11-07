@@ -1,143 +1,64 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace DeepLearningNeuralNetwork
 {
 	public class Layer
 	{
-		List<Neuron> neurons;
+		public Neuron[] neurons;
 
-		public bool HasBias { get; private set; }
-		public int NumOfNeurons { get { return neurons.Count; } }
-		public int Length => HasBias ? neurons.Count - 1 : neurons.Count;
-
-		public Layer(int numNeurons = 0, bool useBias = true)
+		/// <summary>
+		/// Create input layer.
+		/// </summary>
+		private Layer(int neuronsCount, double biasValue)
 		{
-			neurons = new List<Neuron>();
-			for (int i = 0; i < numNeurons; i++)
+			neurons = new Neuron[neuronsCount + 1];
+			for (int i = 0; i < neuronsCount; i++)
 			{
-				neurons.Add(new Neuron());
+				neurons[i] = new InputNeuron();
 			}
-			ToggleBias(useBias);
+			neurons[neuronsCount] = new Bias(biasValue);
 		}
 
-		public Neuron ToggleBias(bool toggle)
+		/// <summary>
+		/// Create hidden layer.
+		/// </summary>
+		private Layer(int neuronsCount, double biasWeight, Func<double, double> activation, Func<double, double> cost)
 		{
-			Neuron neuron = null;
-			if (toggle)
+			neurons = new Neuron[neuronsCount + 1];
+			for (int neuron = 0; neuron < neuronsCount; neuron++)
 			{
-				neuron = new Neuron(1);
-				neurons.Add(neuron);
+				neurons[neuron] = new Neuron(activation, cost);
 			}
-			else if (HasBias)
-			{
-				neuron = neurons[neurons.Count - 1];
-				neurons.RemoveAt(neurons.Count - 1);
-			}
-			HasBias = toggle;
-			return neuron;
+			neurons[neuronsCount] = new Bias(biasWeight);
 		}
 
-		public void Bind(Layer nextLayer)
+		/// <summary>
+		/// Create output layer.
+		/// </summary>
+		private Layer(int neuronsCount, Func<double, double> activation, Func<double, double> cost)
 		{
-			foreach (Neuron n in neurons)
-				n.SetConnections(nextLayer.neurons);
-
-			neurons.Capacity = neurons.Count;
-		}
-
-		public void SetInputs(double[] inputs)
-		{
-			if (inputs.Length != Length)
-				throw new NeuralNetworkException("Количество входных значений не равно количеству нейронов во входном слое.",
-					inputs.Length, neurons.Count);
-
-			for (int neuron = 0; neuron < Length; neuron++)
+			neurons = new Neuron[neuronsCount];
+			for (int i = 0; i < neuronsCount; i++)
 			{
-				neurons[neuron].SetOutput(inputs[neuron]);
+				neurons[i] = new OutputNeuron(activation, cost);
 			}
 		}
 
-		public void UpdateOutputs(Layer prevLayer)
+		public static Layer CreateInputLayer(int neuronsCount, double biasValue)
 		{
-			for (int neuron = 0; neuron < Length; neuron++)
-			{
-				neurons[neuron].CalculateOutput(prevLayer.neurons);
-			}
+			return new Layer(neuronsCount, biasValue);
 		}
 
-		public void UpdateGradients(double[] targetOutputs)
+		public static Layer CreateHiddenLayer(int neuronsCount, double biasWeight, Func<double, double> activation, Func<double, double> cost)
 		{
-			if (targetOutputs.Length != Length)
-				throw new NeuralNetworkException("Количество ожидаемых значений не равно количеству нейронов в выходном слое.",
-					targetOutputs.Length, Length);
-
-			for (int neuron = 0; neuron < Length; neuron++)
-			{
-				neurons[neuron].CalculateGradient(targetOutputs[neuron]);
-			}
+			return new Layer(neuronsCount, biasWeight, activation, cost);
 		}
 
-		public void UpdateGradients()
+		public static Layer CreateOutputLayer(int neuronsCount, Func<double, double> activation, Func<double, double> cost)
 		{
-			for (int neuron = 0; neuron < Length; neuron++)
-			{
-				neurons[neuron].CalculateGradient();
-			}
-		}
-
-		public void UpdateConnections()
-		{
-			foreach (Neuron n in neurons)
-			{
-				n.CalculateConnections();
-			}
-		}
-
-		public Layer AddNeuron(Neuron neuron)
-		{
-			neurons.Add(neuron);
-			return this;
-		}
-
-		public Layer AddNeuron(Neuron neuron, int pos)
-		{
-			AddNeuron(neuron);
-			if (pos >= 0 && pos < neurons.Count - 2)
-				MoveNeuron(pos, neurons.Count - 1);
-			return this;
-		}
-
-		public Layer MoveNeuron(int from, int to)
-		{
-			if (from == to)
-				return this;
-
-			if (to < 0)
-				to = 0;
-			else if (to > neurons.Count - 1)
-				to = neurons.Count - 1;
-
-			if (from < 0)
-				from = 0;
-			else if (from > neurons.Count - 1)
-				from = neurons.Count - 1;
-
-			Neuron temp = neurons[to];
-			neurons[to] = neurons[from];
-			neurons[from] = temp;
-
-			return this;
-		}
-
-		public double GetNeuronOutput(int neuronNum)
-		{
-			return neurons[neuronNum].Output;
-		}
-
-		public double GetConnectionWeight(int neuronNum, Layer nextLayer, int connectedNeuron)
-		{
-			return neurons[neuronNum].GetConnectionWeight(nextLayer.neurons[connectedNeuron]);
+			return new Layer(neuronsCount, activation, cost);
 		}
 	}
 }

@@ -1,38 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DeepLearningNeuralNetwork;
 
 
-namespace Controller
+namespace Launcher
 {
 	class Program
 	{
 		static void Main(string[] args)
 		{
-			Perceptron p = new Perceptron("Deep Learning");
+			Perceptron p = new Perceptron(new int[] { 2, 3, 1 }, 1,
+				Functions.Sigmoid, Functions.SigmoidDerivative, -0.5, 0.5);
 
-			Layer inputLayer = new Layer(2);
-			Layer l2 = new Layer(3);
-			Layer l3 = new Layer(3);
-			Layer l4 = new Layer(4);
-			Layer outputLayer = new Layer(1, false);
-
-			p.AddLayer(inputLayer)
-				.AddLayer(l2)
-				.AddLayer(l3)
-				//.AddLayer(l4)
-				.AddLayer(outputLayer);
-
-			p.Setup();
-
-			FullInfo(p);
-
-			Train(p, 50000);
-
-			FullInfo(p);
+			Train(p, 5000);
 
 			Console.ReadLine();
 		}
@@ -64,7 +43,6 @@ namespace Controller
 		static double[][] TrainingData()
 		{
 			int next = Functions.Rand.Next(0, 4);
-
 			return data[next];
 		}
 
@@ -74,45 +52,13 @@ namespace Controller
 			{
 				double[][] d = TrainingData();
 				p.FeedForward(d[0]);
-				p.BackPropagation(d[1]);
+				p.BackPropagation(d[1], 0.4, 0.85);
 
-				Console.WriteLine($"training data [{d[0][0]}, {d[0][1]} = {d[1][0]}] -> {p.GetNeuronOutput(p.NumOfLayers - 1, 0).ToString("0.000")}");
+				double[] res = p.Result;
+
+				if ((double)i / times > 0.97)
+					Console.WriteLine($"Data: [{d[0][0]}, {d[0][1]}] -> {d[1][0]} ~ {res[0].ToString("0.000")}");
 			}
-		}
-
-		static void FullInfo(Perceptron p)
-		{
-			StringBuilder result = new StringBuilder();
-			result.AppendLine(p.Name);
-
-			for (int layer = 0; layer < p.NumOfLayers; layer++)
-			{
-				result.AppendLine("Layer: " + layer);
-
-				for (int neuron = 0; neuron < p.GetNumOfNeurons(layer); neuron++)
-				{
-					result.Append($"N({layer}, {neuron}) = {p.GetNeuronOutput(layer, neuron).ToString("0.00")}");
-
-					if (layer < p.NumOfLayers - 1)
-					{
-						result.Append($" [");
-						for (int connection = 0; connection < p.GetNumOfNeurons(layer + 1, false); connection++)
-						{
-							result.Append($"{p.GetConnectionWeight(layer, neuron, connection).ToString("0.000")}");
-							if (connection < p.GetNumOfNeurons(layer + 1, false) - 1)
-								result.Append(" & ");
-						}
-						result.Append($"]");
-					}
-
-					if (neuron < p.GetNumOfNeurons(layer) - 1)
-						result.Append(" | ");
-				}
-
-				result.AppendLine();
-			}
-
-			Console.WriteLine(result);
 		}
 	}
 }

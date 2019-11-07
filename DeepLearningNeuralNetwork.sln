@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29411.108
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeepLearningNeuralNetwork", "DeepLearningNeuralNetwork\DeepLearningNeuralNetwork.csproj", "{6035FFCC-A4F3-44D6-BB1C-8C5D7E3AB451}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Controller", "Controller\Controller.csproj", "{0904BADB-9B54-4D90-918C-DA03FC24ECE4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Launcher", "Controller\Launcher.csproj", "{0904BADB-9B54-4D90-918C-DA03FC24ECE4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -7,110 +7,74 @@ namespace DeepLearningNeuralNetwork
 {
     public class Perceptron
     {
-		List<Layer> layers;
+		Layer[] layers;
 
-		public string Name { get; } = "Neural Netowrk";
-		public int NumOfLayers { get { return layers.Count; } }
-		public bool Formed { get; private set; } = false;
-
-		public Perceptron(string name)
+		public double[] Result
 		{
-			Name = name;
-			layers = new List<Layer>();
+			get
+			{
+				double[] result = new double[layers[layers.Length - 1].neurons.Length];
+				int i = 0;
+				foreach (Neuron n in layers[layers.Length - 1].neurons)
+					result[i++] = n.Output;
+				return result;
+			}
 		}
 
-		public void Setup()
+		public Perceptron(int[] p, double biasWeight,
+			Func<double, double> activation, Func<double, double> cost,
+			double minConnectionWeight, double maxConnectionWeight)
 		{
-			if (layers.Count < 2)
-				throw new NeuralNetworkException("Не достаточно слоев для формирования связей.", layers.Count);
+			// Create perceptron
+			layers = new Layer[p.Length];
+			layers[0] = Layer.CreateInputLayer(p[0], 1);
+			for (int layer = 1; layer < p.Length - 1; layer++)
+				layers[layer] = Layer.CreateHiddenLayer(p[layer], biasWeight, activation, cost);
+			layers[p.Length - 1] = Layer.CreateOutputLayer(p[p.Length - 1], activation, cost);
 
-			if (Formed)
-				throw new NeuralNetworkException("Нейронная сеть уже сформирована.");
-
-			for (int layer = 0; layer < layers.Count - 1; layer++)
-			{
-				layers[layer].Bind(layers[layer + 1]);
-			}
-
-			Formed = true;
+			// Create connections
+			for (int i = 0; i < layers.Length - 1; i++)
+				for (int j = 0; j < layers[i].neurons.Length; j++)
+					layers[i].neurons[j].SetConnections(layers[i + 1].neurons, minConnectionWeight, maxConnectionWeight);
 		}
 
 		public void FeedForward(double[] inputs)
 		{
-			if (!Formed)
-				throw new NeuralNetworkException("Нейронная сеть не сформирована.");
+			// Check length == length
 
-			layers[0].SetInputs(inputs);
-
-			for (int layer = 1; layer < layers.Count; layer++)
+			Neuron[] inputLayer = layers[0].neurons;
+			for (int i = 0; i < inputLayer.Length; i++)
 			{
-				layers[layer].UpdateOutputs(layers[layer - 1]);
+				InputNeuron n = inputLayer[i] as InputNeuron;
+				if (n != null)
+					n.SetInput(inputs[i]);
 			}
+
+			for (int i = 1; i < layers.Length; i++)
+				foreach (Neuron n in layers[i].neurons)
+				{
+					if (n is Bias)
+						continue;
+					n.CalculateOutput(layers[i - 1].neurons);
+				}
+
 		}
 
-		public void BackPropagation(double[] targetOutputs)
+		public void BackPropagation(double[] targets, double eta, double alpha)
 		{
-			if (!Formed)
-				throw new NeuralNetworkException("Нейронная сеть не сформирована.");
+			// Check length == length
 
-			layers[layers.Count - 1].UpdateGradients(targetOutputs);
-			for (int layer = layers.Count - 2; layer >= 1; layer--)
-			{
-				layers[layer].UpdateGradients();
-				layers[layer].UpdateConnections();
-			}
-			layers[0].UpdateConnections();
-		}
+			int i = 0;
 
-		public Perceptron AddLayer(Layer layer)
-		{
-			layers.Add(layer);
-			return this;
-		}
+			foreach (OutputNeuron neuron in layers[layers.Length - 1].neurons)
+				neuron.CalculateGradient(targets[i++]);
 
-		public Perceptron AddLayer(Layer layer, int pos)
-		{
-			AddLayer(layer);
-			if (pos >= 0 && pos < layers.Count - 2)
-				MoveLayer(layers.Count - 1, pos);
-			return this;
-		}
-
-		public Perceptron MoveLayer(int from, int to)
-		{
-			if (from == to)
-				return this;
-
-			if (to < 0)
-				to = 0;
-			else if (to > layers.Count - 1)
-				to = layers.Count - 1;
-
-			if (from < 0)
-				from = 0;
-			else if (from > layers.Count - 1)
-				from = layers.Count - 1;
-
-			Layer temp = layers[to];
-			layers[to] = layers[from];
-			layers[from] = temp;
-
-			return this;
-		}
-
-		public int GetNumOfNeurons(int layerNum, bool includeBias = true)
-		{
-			return includeBias ? layers[layerNum].NumOfNeurons : layers[layerNum].Length;
-		}
-
-		public double GetNeuronOutput(int layerNum, int neuronNum)
-		{
-			return layers[layerNum].GetNeuronOutput(neuronNum);
-		}
-
-		public double GetConnectionWeight(int layerNum, int neuronNum, int connectedNeuron)
-		{
-			return layers[layerNum].GetConnectionWeight(neuronNum, layers[layerNum + 1], connectedNeuron);
+			for (i = layers.Length - 2; i >= 0; i--)
+				foreach (Neuron n in layers[i].neurons)
+				{
+					n.CalculateGradient();
+					n.CalculateWeights(eta, alpha);
+				}
 		}
 	}
 }
