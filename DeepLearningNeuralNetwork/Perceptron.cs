@@ -23,7 +23,7 @@ namespace DeepLearningNeuralNetwork
 
 		public Perceptron(int[] p, double biasWeight,
 			Func<double, double> activation, Func<double, double> cost,
-			double minConnectionWeight, double maxConnectionWeight)
+			double minWeight, double maxWeight)
 		{
 			// Create perceptron
 			layers = new Layer[p.Length];
@@ -35,7 +35,7 @@ namespace DeepLearningNeuralNetwork
 			// Create connections
 			for (int i = 0; i < layers.Length - 1; i++)
 				for (int j = 0; j < layers[i].neurons.Length; j++)
-					layers[i].neurons[j].SetConnections(layers[i + 1].neurons, minConnectionWeight, maxConnectionWeight);
+					layers[i].neurons[j].SetConnections(layers[i + 1].neurons, minWeight, maxWeight);
 		}
 
 		public void FeedForward(double[] inputs)
